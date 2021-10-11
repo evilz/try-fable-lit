@@ -4,7 +4,7 @@ import { Prop_Of_6B8EFA6B, LitElementAttribute } from "./fable_modules/Fable.Lit
 import { Lit_mapUnique, Browser_Types_EventTarget__EventTarget_get_Value, LitHelpers_css, LitHelpers_html } from "./fable_modules/Fable.Lit.1.3.0/Lit.fs.js";
 import { fmt } from "./fable_modules/fable-library.3.4.0/String.js";
 import { length, filter, cons, ofArray, singleton } from "./fable_modules/fable-library.3.4.0/List.js";
-import { fadeOut, flyBelow, animate } from "@lit-labs/motion";
+import { fadeOut, flyBelow, animate } from "https://unpkg.com/@lit-labs/motion@1.0.1/index.js?module";
 
 export class MouseController {
     constructor() {
@@ -15,7 +15,7 @@ export class MouseController {
             x: 0,
             y: 0,
         };
-        this["init@19-44"] = 1;
+        this["init@19"] = 1;
     }
 }
 

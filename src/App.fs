@@ -6,13 +6,13 @@ open Browser
 open Fable.Core.JsInterop
 open Fable.Core
 
-[<Import("animate", from = "@lit-labs/motion")>]
+[<Import("animate", from = "https://unpkg.com/@lit-labs/motion@1.0.1/index.js?module")>]
 let animate (obj) : unit = jsNative
 
-[<Import("flyBelow", from = "@lit-labs/motion")>]
+[<Import("flyBelow", from = "https://unpkg.com/@lit-labs/motion@1.0.1/index.js?module")>]
 let flyBelow (obj) : unit = jsNative
 
-[<Import("fadeOut", from = "@lit-labs/motion")>]
+[<Import("fadeOut", from = "https://unpkg.com/@lit-labs/motion@1.0.1/index.js?module")>]
 let fadeOut (obj) : unit = jsNative
 
 
