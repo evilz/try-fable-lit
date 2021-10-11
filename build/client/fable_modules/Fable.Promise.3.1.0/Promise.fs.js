@@ -20,12 +20,10 @@ export function mapResult(fn, a) {
 export function bindResult(fn, a) {
     return a.then(((a_1) => {
         if (a_1.tag === 1) {
-            const e = a_1.fields[0];
-            return Promise.resolve((new FSharpResult$2(1, e)));
+            return Promise.resolve((new FSharpResult$2(1, a_1.fields[0])));
         }
         else {
-            const a_2 = a_1.fields[0];
-            const pr = fn(a_2);
+            const pr = fn(a_1.fields[0]);
             return pr.then(((arg0) => (new FSharpResult$2(0, arg0))));
         }
     }));

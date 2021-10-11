@@ -41,13 +41,7 @@ export function HMRTypes_HMRToken__RequestUpdate_4E60E31B(_, newModule) {
 export function HMRTypes_HMRToken_Get_Z721C83C5(moduleUrl) {
     let moduleUrl_1;
     const matchValue = moduleUrl.indexOf("?") | 0;
-    if (matchValue === -1) {
-        moduleUrl_1 = moduleUrl;
-    }
-    else {
-        const i = matchValue | 0;
-        moduleUrl_1 = moduleUrl.slice(void 0, (i - 1) + 1);
-    }
+    moduleUrl_1 = ((matchValue === -1) ? moduleUrl : moduleUrl.slice(void 0, (matchValue - 1) + 1));
     const dic = window["__FABLE_LIT_HMR__"] || (window["__FABLE_LIT_HMR__"] = (() => ({}))()) ;
     return dic[moduleUrl_1] || (dic[moduleUrl_1] = (HMRTypes_HMRToken_$ctor)()) ;
 }

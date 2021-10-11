@@ -36,7 +36,6 @@ export const LitHelpers_css = (() => {
 })();
 
 export function LitHelpers_inline_css(css) {
-    let i2;
     const matchValue = css.indexOf("{") | 0;
     if (matchValue === -1) {
         return css;
@@ -44,9 +43,8 @@ export function LitHelpers_inline_css(css) {
     else {
         const i = matchValue | 0;
         const matchValue_1 = css.lastIndexOf("}") | 0;
-        if ((i2 = (matchValue_1 | 0), i2 > i)) {
-            const i2_1 = matchValue_1 | 0;
-            return css.slice(i + 1, (i2_1 - 1) + 1);
+        if (matchValue_1 > i) {
+            return css.slice(i + 1, (matchValue_1 - 1) + 1);
         }
         else {
             return css;
@@ -89,10 +87,8 @@ export function Lit_render(el, t) {
 
 export function Lit_classes_5A743451(classes) {
     return join(" ", choose((tupledArg) => {
-        const s = tupledArg[0];
-        const b = tupledArg[1];
-        if (b) {
-            return s;
+        if (tupledArg[1]) {
+            return tupledArg[0];
         }
         else {
             return void 0;
@@ -113,8 +109,7 @@ export function Lit_ofPromise_79CBC0DD(template, placeholder) {
 }
 
 export function Lit_onChange_3816F95(dependency, template) {
-    const dependencies = Array.isArray(dependency) ? dependency : [dependency];
-    return guard(dependencies, () => template(dependency));
+    return guard(Array.isArray(dependency) ? dependency : [dependency], () => template(dependency));
 }
 
 export function Lit_onChange_Z15DFCF7D(dependency1, dependency2, template) {

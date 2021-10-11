@@ -1,15 +1,10 @@
-import { zip } from "../fable-library.3.4.0/Array.js";
-import { name as name_1, class_type } from "../fable-library.3.4.0/Reflection.js";
+import { class_type } from "../fable-library.3.4.0/Reflection.js";
 import { curry, mapCurriedArgs, jsOptions } from "../fable-library.3.4.0/Util.js";
-import { defaultArg, value as value_2, toArray, some } from "../fable-library.3.4.0/Option.js";
-import { zip as zip_1, iterate } from "../fable-library.3.4.0/Seq.js";
-import { HMRTypes_HMRToken__Subscribe_Z1AE52D65 } from "./HMR.fs.js";
+import { zip, iterate } from "../fable-library.3.4.0/Seq.js";
+import { defaultArg, some, toArray } from "../fable-library.3.4.0/Option.js";
 import { HookContext } from "./Hook.fs.js";
 import { LitElement } from "lit";
 import { toArray as toArray_1 } from "../fable-library.3.4.0/List.js";
-import { createRef } from "lit-html/directives/ref.js";
-import { join } from "../fable-library.3.4.0/String.js";
-import { addToSet } from "../fable-library.3.4.0/MapUtil.js";
 import { Attribute } from "../fable-library.3.4.0/Types.js";
 
 function LitElementUtil_isNotNull(x) {
@@ -26,27 +21,6 @@ function LitElementUtil_failInit() {
 
 function LitElementUtil_failProps(key) {
     throw (new Error(`'${key}' field in \`props\` record is not of Prop<'T> type`));
-}
-
-const LitElementUtil_definedElements = new Set([]);
-
-function LitElementUtil_updateStyleSheets(data, litEl, newCSSResults) {
-    if ((LitElementUtil_isNotNull(litEl.shadowRoot) ? LitElementUtil_isNotNull(litEl.shadowRoot.adoptedStyleSheets) : false) ? LitElementUtil_isNotNull(newCSSResults) : false) {
-        const oldSheets = litEl.shadowRoot.adoptedStyleSheets;
-        const updatedSheets = data["updatedSheets"] || (data["updatedSheets"] = (() => (new Set()))()) ;
-        if (oldSheets.length === newCSSResults.length) {
-            zip(oldSheets, newCSSResults).forEach((tupledArg) => {
-                const oldSheet = tupledArg[0];
-                const newCSSResult = tupledArg[1];
-                const newSheet = newCSSResult.styleSheet;
-                if ((LitElementUtil_isNotNull(newCSSResult.cssText) ? LitElementUtil_isNotReferenceEquals(oldSheet, newSheet) : false) ? (!updatedSheets.has(newSheet)) : false) {
-                    const pr = oldSheet.replace(newCSSResult.cssText);
-                    void pr;
-                    void updatedSheets.add(newSheet);
-                }
-            });
-        }
-    }
 }
 
 export class Prop {
@@ -84,46 +58,11 @@ export function Prop__ToConfig(_) {
 }
 
 export function Prop_Of_6B8EFA6B(defaultValue, attribute, hasChanged, fromAttribute, toAttribute, reflect) {
-    const options = jsOptions((o) => {
-        let typ;
-        const matchValue = defaultValue;
-        let pattern_matching_result;
-        if ((typeof matchValue) === "string") {
-            pattern_matching_result = 0;
-        }
-        else if ((typeof matchValue) === "number") {
-            pattern_matching_result = 1;
-        }
-        else if ((typeof matchValue) === "number") {
-            pattern_matching_result = 1;
-        }
-        else if ((typeof matchValue) === "boolean") {
-            pattern_matching_result = 2;
-        }
-        else {
-            pattern_matching_result = 3;
-        }
-        switch (pattern_matching_result) {
-            case 0: {
-                typ = some(String);
-                break;
-            }
-            case 1: {
-                typ = some(Number);
-                break;
-            }
-            case 2: {
-                typ = some(Boolean);
-                break;
-            }
-            case 3: {
-                typ = (void 0);
-                break;
-            }
-        }
+    return Prop$1_$ctor_4E398B2E(defaultValue, jsOptions((o) => {
+        let matchValue;
         iterate((v) => {
             o.type = v;
-        }, toArray(typ));
+        }, toArray((matchValue = defaultValue, ((typeof matchValue) === "string") ? some(String) : (((typeof matchValue) === "number") ? some(Number) : (((typeof matchValue) === "number") ? some(Number) : (((typeof matchValue) === "boolean") ? some(Boolean) : (void 0)))))));
         iterate((v_1) => {
             o.reflect = v_1;
         }, toArray(reflect));
@@ -139,23 +78,22 @@ export function Prop_Of_6B8EFA6B(defaultValue, attribute, hasChanged, fromAttrib
                     break;
                 }
                 default: {
-                    const att_1 = matchValue_1;
-                    o.attribute = att_1;
+                    o.attribute = matchValue_1;
                 }
             }
         }, toArray(attribute));
         const matchValue_2 = [fromAttribute, toAttribute];
-        let pattern_matching_result_1;
+        let pattern_matching_result;
         if (matchValue_2[0] != null) {
-            pattern_matching_result_1 = 0;
+            pattern_matching_result = 0;
         }
         else if (matchValue_2[1] != null) {
-            pattern_matching_result_1 = 0;
+            pattern_matching_result = 0;
         }
         else {
-            pattern_matching_result_1 = 1;
+            pattern_matching_result = 1;
         }
-        switch (pattern_matching_result_1) {
+        switch (pattern_matching_result) {
             case 0: {
                 o.converter = jsOptions((o_1) => {
                     iterate((v_3) => {
@@ -171,8 +109,7 @@ export function Prop_Of_6B8EFA6B(defaultValue, attribute, hasChanged, fromAttrib
                 break;
             }
         }
-    });
-    return Prop$1_$ctor_4E398B2E(defaultValue, options);
+    }));
 }
 
 export class LitElementInit$1 {
@@ -232,7 +169,6 @@ export class LitHookElement$1 extends LitElement {
     constructor(initProps) {
         super();
         this._hooks = (new HookContext(this));
-        this._hmrSub = (void 0);
         initProps(this);
     }
     render() {
@@ -248,20 +184,6 @@ export class LitHookElement$1 extends LitElement {
         const _ = this;
         super.connectedCallback();
         _._hooks.runEffects(true, false);
-    }
-    get subscribeHmr() {
-        const this$ = this;
-        return (token) => {
-            const matchValue = this$._hmrSub;
-            if (matchValue == null) {
-                this$._hmrSub = HMRTypes_HMRToken__Subscribe_Z1AE52D65(token, (info) => {
-                    const updatedModule = info.NewModule;
-                    const updatedExport = updatedModule[this$.name];
-                    this$.renderFn = updatedExport.renderFn;
-                    LitElementUtil_updateStyleSheets(info.Data, this$, updatedExport.styles);
-                });
-            }
-        };
     }
     init(_arg1) {
         const this$ = this;
@@ -286,12 +208,9 @@ export class LitElementAttribute extends Attribute {
         super();
         this.name = name;
     }
-    Decorate(renderFn, mi) {
-        const _ = this;
+    Decorate(renderFn) {
+        const this$ = this;
         const config = LitElementInit$1_$ctor();
-        const dummyFn = () => {
-            throw (new Error(`${_.name} is not immediately callable, it must be created in HTML`));
-        };
         if (renderFn.length > 0) {
             throw (new Error("Render function for LitElement cannot take arguments"));
         }
@@ -313,50 +232,33 @@ export class LitElementAttribute extends Attribute {
                 const propsValues = [];
                 const propsOptions = {};
                 iterate((tupledArg) => {
-                    let v_1;
                     const k = tupledArg[0];
-                    const v = tupledArg[1];
                     let patternInput;
-                    const matchValue_1 = v;
-                    patternInput = ((matchValue_1 instanceof Prop) ? ((v_1 = matchValue_1, Prop__ToConfig(v_1))) : LitElementUtil_failProps(k));
-                    const options = patternInput[1];
+                    const matchValue_1 = tupledArg[1];
+                    patternInput = ((matchValue_1 instanceof Prop) ? Prop__ToConfig(matchValue_1) : LitElementUtil_failProps(k));
                     const defVal = patternInput[0];
-                    propsOptions[k] = options;
+                    propsOptions[k] = patternInput[1];
                     if (!(defVal == null)) {
                         void (propsValues.push([k, defVal]));
                     }
-                }, (source2 = Object.values(config_1.props), zip_1(Object.keys(config_1.props), source2)));
-                const initProps = (this$) => {
+                }, (source2 = Object.values(config_1.props), zip(Object.keys(config_1.props), source2)));
+                patternInput_1 = [some(propsOptions), (this$_1) => {
                     iterate((tupledArg_1) => {
-                        const k_1 = tupledArg_1[0];
-                        const v_2 = tupledArg_1[1];
-                        this$[k_1] = v_2;
+                        this$_1[tupledArg_1[0]] = tupledArg_1[1];
                     }, propsValues);
-                };
-                patternInput_1 = [some(propsOptions), initProps];
+                }];
             }
             else {
                 patternInput_1 = [void 0, (_arg1) => {
                 }];
             }
-            const propsOptions_1 = patternInput_1[0];
-            const initProps_1 = patternInput_1[1];
-            let classExpr;
-            const baseClass = LitHookElement$1;
-            const renderRef = createRef();
-            renderRef.value = renderFn;
-            classExpr = (class extends baseClass {
-            constructor() { super(initProps_1) }
-            get name() { return name_1(mi); }
-            get renderFn() { return renderRef.value; }
-            set renderFn(v) {
-            renderRef.value = v;
-            this.hooks.requestUpdate();
-            }
-            });
+            const classExpr = class extends LitHookElement$1 {
+            constructor() { super(patternInput_1[1]) }
+            get renderFn() { return renderFn }
+            };
             iterate((props) => {
                 Object.defineProperty(classExpr, "properties", { get: (() => props) });
-            }, toArray(propsOptions_1));
+            }, toArray(patternInput_1[0]));
             iterate((styles_1) => {
                 Object.defineProperty(classExpr, "styles", { get: (() => styles_1) });
             }, toArray(styles));
@@ -365,29 +267,16 @@ export class LitElementAttribute extends Attribute {
                 return this;
                 };
             }
-            let cacheName;
-            if (propsOptions_1 != null) {
-                const props_1 = value_2(propsOptions_1);
-                cacheName = ((((name_1(mi) + "::") + _.name) + "::") + join(", ", Object.keys(props_1)));
-            }
-            else {
-                cacheName = ((name_1(mi) + "::") + _.name);
-            }
-            if (!LitElementUtil_definedElements.has(cacheName)) {
-                customElements.define(_.name, classExpr);
-                void addToSet(cacheName, LitElementUtil_definedElements);
-            }
-            dummyFn.renderFn = renderFn;
-            iterate((styles_2) => {
-                dummyFn.styles = styles_2;
-            }, toArray(styles));
+            customElements.define(this$.name, classExpr);
         })));
-        return dummyFn;
+        return () => {
+            throw (new Error(`${this$.name} is not immediately callable, it must be created in HTML`));
+        };
     }
 }
 
 export function LitElementAttribute$reflection() {
-    return class_type("Lit.LitElementAttribute", void 0, LitElementAttribute, class_type("Fable.Core.JS.ReflectedDecoratorAttribute"));
+    return class_type("Lit.LitElementAttribute", void 0, LitElementAttribute, class_type("Fable.Core.JS.DecoratorAttribute"));
 }
 
 export function LitElementAttribute_$ctor_Z721C83C5(name) {

@@ -28,9 +28,7 @@ export function object(values) {
     try {
         while (enumerator["System.Collections.IEnumerator.MoveNext"]()) {
             const forLoopVar = enumerator["System.Collections.Generic.IEnumerator`1.get_Current"]();
-            const value = forLoopVar[1];
-            const key = forLoopVar[0];
-            o[key] = value;
+            o[forLoopVar[0]] = forLoopVar[1];
         }
     }
     finally {
@@ -266,10 +264,8 @@ function autoEncoder(extra, caseStrategy, skipNullField, t) {
                     const valueEncoder = autoEncoder(extra, caseStrategy, skipNullField, getGenerics(t)[1]);
                     if ((fullName(keyType) === "System.String") ? true : (fullName(keyType) === "System.Guid")) {
                         return (value_12) => fold((target, _arg1) => {
-                            const activePatternResult2612 = _arg1;
-                            const v_1 = activePatternResult2612[1];
-                            const k = activePatternResult2612[0];
-                            target[k]=valueEncoder(v_1);
+                            const activePatternResult2545 = _arg1;
+                            target[activePatternResult2545[0]]=valueEncoder(activePatternResult2545[1]);
                             return target;
                         }, {}, value_12);
                     }
@@ -278,10 +274,8 @@ function autoEncoder(extra, caseStrategy, skipNullField, t) {
                         const clo4 = autoEncoder(extra, caseStrategy, skipNullField, keyType);
                         keyEncoder = ((arg40) => clo4(arg40));
                         return (value_13) => seq(map_2((_arg2) => {
-                            const activePatternResult2616 = _arg2;
-                            const v_2 = activePatternResult2616[1];
-                            const k_1 = activePatternResult2616[0];
-                            return [keyEncoder(k_1), valueEncoder(v_2)];
+                            const activePatternResult2549 = _arg2;
+                            return [keyEncoder(activePatternResult2549[0]), valueEncoder(activePatternResult2549[1])];
                         }, value_13));
                     }
                 }
@@ -350,11 +344,7 @@ function autoEncoder(extra, caseStrategy, skipNullField, t) {
 
 function makeExtra(extra) {
     if (extra != null) {
-        const e = extra;
-        return map_3((_arg2, tupledArg) => {
-            const enc = tupledArg[0];
-            return new FSharpRef(enc);
-        }, e.Coders);
+        return map_3((_arg2, tupledArg) => (new FSharpRef(tupledArg[0])), extra.Coders);
     }
     else {
         return empty();
@@ -371,14 +361,10 @@ export function Auto$reflection() {
 }
 
 export function Auto_generateBoxedEncoderCached_Z20B7B430(t, caseStrategy, extra, skipNullField) {
+    let y_1, y;
     const caseStrategy_1 = defaultArg(caseStrategy, new CaseStrategy(0));
     const skipNullField_1 = defaultArg(skipNullField, true);
-    let key;
-    let y_1;
-    const y = fullName(t);
-    y_1 = (toString_5(caseStrategy_1) + y);
-    key = (defaultArg(map((e) => e.Hash, extra), "") + y_1);
-    return Util_Cache$1__GetOrAdd_43981464(Util_CachedEncoders, key, () => autoEncoder(makeExtra(extra), caseStrategy_1, skipNullField_1, t));
+    return Util_Cache$1__GetOrAdd_43981464(Util_CachedEncoders, (y_1 = ((y = fullName(t), toString_5(caseStrategy_1) + y)), defaultArg(map((e) => e.Hash, extra), "") + y_1), () => autoEncoder(makeExtra(extra), caseStrategy_1, skipNullField_1, t));
 }
 
 export function Auto_generateBoxedEncoder_Z20B7B430(t, caseStrategy, extra, skipNullField) {

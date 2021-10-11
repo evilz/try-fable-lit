@@ -1,1 +1,1 @@
-{"options":{"TypedArrays":true,"ClampByteArrays":false,"Language":{"Case":"JavaScript"},"Define":["FABLE_COMPILER","FABLE_COMPILER_3"],"DebugMode":true,"OptimizeFSharpAst":false,"RootModule":true,"Verbosity":{"Case":"Normal"},"FileExtension":".js"},"version":"3.4.0"}
+{"options":{"TypedArrays":true,"ClampByteArrays":false,"Language":{"Case":"JavaScript"},"Define":["FABLE_COMPILER","FABLE_COMPILER_3"],"DebugMode":false,"OptimizeFSharpAst":false,"RootModule":true,"Verbosity":{"Case":"Normal"},"FileExtension":".js"},"version":"3.4.0"}

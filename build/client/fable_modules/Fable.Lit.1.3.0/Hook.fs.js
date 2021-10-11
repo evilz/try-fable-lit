@@ -1,14 +1,12 @@
 import { Attribute, FSharpRef, Union } from "../fable-library.3.4.0/Types.js";
-import { name, union_type, lambda_type, class_type, unit_type } from "../fable-library.3.4.0/Reflection.js";
+import { union_type, lambda_type, class_type, unit_type } from "../fable-library.3.4.0/Reflection.js";
 import { defaultArg } from "../fable-library.3.4.0/Option.js";
 import { equalsWith } from "../fable-library.3.4.0/Array.js";
 import { clear, getEnumerator, equals as equals_3, curry, compare } from "../fable-library.3.4.0/Util.js";
 import { iterate } from "../fable-library.3.4.0/Seq.js";
 import { noChange } from "lit-html";
-import { HMRTypes_HMRToken, HMRTypes_HMRToken__Subscribe_Z1AE52D65 } from "./HMR.fs.js";
 import { AsyncDirective } from "lit-html/async-directive.js";
-import { createRef } from "lit-html/directives/ref.js";
-import { directive as directive_1 } from "lit-html/directive.js";
+import { directive } from "lit-html/directive.js";
 
 export function HookUtil_createDisposable(f) {
     return {
@@ -120,8 +118,7 @@ export function TransitionConfig__onComplete_Z1FBCCD16(_, isIn) {
     if (matchValue == null) {
     }
     else {
-        const f = matchValue;
-        f(isIn);
+        matchValue(isIn);
     }
 }
 
@@ -181,33 +178,20 @@ export class HookContext {
         HookUtil_runAsync(() => {
             iterate((_arg1) => {
                 if (_arg1.tag === 0) {
-                    const effect_1 = _arg1.fields[0];
                     if (onConnected) {
-                        void (_._disposables.push(effect_1()));
+                        void (_._disposables.push(_arg1.fields[0]()));
                     }
                 }
-                else {
-                    const effect = _arg1.fields[0];
-                    if (onRender) {
-                        effect();
-                    }
+                else if (onRender) {
+                    _arg1.fields[0]();
                 }
             }, _._effects);
         });
     }
     setState(index, newValue, equals) {
+        let newValue_1, oldValue;
         const _ = this;
-        const equals_2 = (oldValue, newValue_1) => {
-            if (curry(2, equals) == null) {
-                return equals_3(oldValue, newValue_1);
-            }
-            else {
-                const equals_1 = equals;
-                return equals_1(oldValue, newValue_1);
-            }
-        };
-        const oldValue_1 = _._states[index];
-        if (!equals_2(oldValue_1, newValue)) {
+        if (!((newValue_1 = newValue, (oldValue = _._states[index], (curry(2, equals) == null) ? equals_3(oldValue, newValue_1) : equals(oldValue, newValue_1))))) {
             _._states[index] = newValue;
             if (!_._rendering) {
                 _.host.requestUpdate();
@@ -238,8 +222,7 @@ export class HookContext {
         let enumerator = getEnumerator(_._disposables);
         try {
             while (enumerator["System.Collections.IEnumerator.MoveNext"]()) {
-                const disp = enumerator["System.Collections.Generic.IEnumerator`1.get_Current"]();
-                disp.Dispose();
+                enumerator["System.Collections.Generic.IEnumerator`1.get_Current"]().Dispose();
             }
         }
         finally {
@@ -251,10 +234,8 @@ export class HookContext {
         const this$ = this;
         this$.checkRendering();
         const patternInput = this$._firstRun ? this$.addState(init()) : this$.getState();
-        const state = patternInput[1];
-        const index = patternInput[0] | 0;
-        return [state, (v) => {
-            this$.setState(index, v);
+        return [patternInput[1], (v) => {
+            this$.setState(patternInput[0], v);
         }];
     }
     useRef(init) {
@@ -338,9 +319,8 @@ export function Lit_HookContext__HookContext_useEffectOnChange_C240689(ctx, valu
     ctx.useEffect(() => {
         const matchValue = prev.contents;
         if (matchValue != null) {
-            const prevValue = matchValue[0];
             const disp = matchValue[1];
-            if (!equals_3(prevValue, value)) {
+            if (!equals_3(matchValue[0], value)) {
                 disp.Dispose();
                 prev.contents = [value, effect(value)];
             }
@@ -355,7 +335,6 @@ export class HookDirective extends AsyncDirective {
     constructor() {
         super();
         this._hooks = (new HookContext(this));
-        this._hmrSub = (void 0);
     }
     requestUpdate() {
         const this$ = this;
@@ -364,39 +343,15 @@ export class HookDirective extends AsyncDirective {
     render(...args) {
         const _ = this;
         const matchValue = _._hooks.renderWith(args);
-        if (matchValue == null) {
-            return noChange;
-        }
-        else {
-            const template = matchValue;
-            return template;
-        }
+        return (matchValue == null) ? noChange : matchValue;
     }
     disconnected() {
         const _ = this;
-        const matchValue = _._hmrSub;
-        if (matchValue != null) {
-            const d = matchValue;
-            _._hmrSub = (void 0);
-            d.Dispose();
-        }
         _._hooks.disconnect();
     }
     reconnected() {
         const _ = this;
         _._hooks.runEffects(true, false);
-    }
-    get subscribeHmr() {
-        const this$ = this;
-        return (token) => {
-            const matchValue = this$._hmrSub;
-            if (matchValue == null) {
-                this$._hmrSub = HMRTypes_HMRToken__Subscribe_Z1AE52D65(token, (info) => {
-                    const updatedModule = info.NewModule;
-                    this$.renderFn = updatedModule[this$.name].renderFn;
-                });
-            }
-        };
     }
     get hooks() {
         const _ = this;
@@ -416,26 +371,16 @@ export class HookComponentAttribute extends Attribute {
     constructor() {
         super();
     }
-    Decorate(renderFn, mi) {
-        const renderRef = createRef();
-        renderRef.value = renderFn;
-        const classExpr = class extends HookDirective {
+    Decorate(renderFn) {
+        return directive(class extends HookDirective {
         constructor() { super() }
-        get name() { return name(mi); }
-        get renderFn() { return renderRef.value; }
-        set renderFn(v) {
-        renderRef.value = v;
-        this.hooks.requestUpdate();
-        }
-        };
-        const directive = directive_1(classExpr);
-        directive.renderFn = renderFn;
-        return directive;
+        get renderFn() { return renderFn }
+        });
     }
 }
 
 export function HookComponentAttribute$reflection() {
-    return class_type("Lit.HookComponentAttribute", void 0, HookComponentAttribute, class_type("Fable.Core.JS.ReflectedDecoratorAttribute"));
+    return class_type("Lit.HookComponentAttribute", void 0, HookComponentAttribute, class_type("Fable.Core.JS.DecoratorAttribute"));
 }
 
 export function HookComponentAttribute_$ctor() {
@@ -471,30 +416,6 @@ export function Hook_get_emptyDisposable() {
 }
 
 export function Hook_useHmr_ZF11B4D8(token, this$) {
-    const matchValue = [token, this$.subscribeHmr];
-    let pattern_matching_result, subscribe, token_1;
-    if (matchValue[0] instanceof HMRTypes_HMRToken) {
-        if (matchValue[1] != null) {
-            pattern_matching_result = 0;
-            subscribe = matchValue[1];
-            token_1 = matchValue[0];
-        }
-        else {
-            pattern_matching_result = 1;
-        }
-    }
-    else {
-        pattern_matching_result = 1;
-    }
-    switch (pattern_matching_result) {
-        case 0: {
-            subscribe(token_1);
-            break;
-        }
-        case 1: {
-            break;
-        }
-    }
 }
 
 export function Hook_useTransition_Z2EF5F687(ctx, transition) {
@@ -503,13 +424,11 @@ export function Hook_useTransition_Z2EF5F687(ctx, transition) {
     const setState = patternInput[1];
     const trigger = (isIn) => {
         const patternInput_1 = isIn ? [new TransitionState(2), new TransitionState(3)] : [new TransitionState(4), new TransitionState(0)];
-        const middleState = patternInput_1[0];
-        const finalState = patternInput_1[1];
         HookUtil_delay(TransitionConfig__get_ms(transition), () => {
-            setState(finalState);
+            setState(patternInput_1[1]);
             TransitionConfig__onComplete_Z1FBCCD16(transition, isIn);
         });
-        setState(middleState);
+        setState(patternInput_1[0]);
     };
     Lit_HookContext__HookContext_useEffectOnChange_31A5188A(ctx, state, (_arg1) => {
         if (_arg1.tag === 1) {

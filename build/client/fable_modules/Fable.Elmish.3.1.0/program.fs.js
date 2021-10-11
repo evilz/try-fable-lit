@@ -42,38 +42,31 @@ export function ProgramModule_mkSimple(init, update, view) {
 }
 
 export function ProgramModule_withSubscription(subscribe, program) {
-    const sub = (model) => Cmd_batch(ofArray([program.subscribe(model), subscribe(model)]));
-    return new Program$4(program.init, program.update, sub, program.view, program.setState, program.onError, program.syncDispatch);
+    return new Program$4(program.init, program.update, (model) => Cmd_batch(ofArray([program.subscribe(model), subscribe(model)])), program.view, program.setState, program.onError, program.syncDispatch);
 }
 
 export function ProgramModule_withConsoleTrace(program) {
-    const traceInit = (arg) => {
+    return new Program$4((arg) => {
         const patternInput = program.init(arg);
         const initModel = patternInput[0];
-        const cmd = patternInput[1];
         Log_toConsole("Initial state:", initModel);
-        return [initModel, cmd];
-    };
-    const traceUpdate = (msg, model) => {
+        return [initModel, patternInput[1]];
+    }, (msg, model) => {
         Log_toConsole("New message:", msg);
         const patternInput_1 = program.update(msg, model);
         const newModel = patternInput_1[0];
-        const cmd_1 = patternInput_1[1];
         Log_toConsole("Updated state:", newModel);
-        return [newModel, cmd_1];
-    };
-    return new Program$4(traceInit, traceUpdate, program.subscribe, program.view, program.setState, program.onError, program.syncDispatch);
+        return [newModel, patternInput_1[1]];
+    }, program.subscribe, program.view, program.setState, program.onError, program.syncDispatch);
 }
 
 export function ProgramModule_withTrace(trace, program) {
-    const update = (msg, model) => {
+    return new Program$4(program.init, (msg, model) => {
         const patternInput = program.update(msg, model);
         const state = patternInput[0];
-        const cmd = patternInput[1];
         trace(msg, state);
-        return [state, cmd];
-    };
-    return new Program$4(program.init, update, program.subscribe, program.view, program.setState, program.onError, program.syncDispatch);
+        return [state, patternInput[1]];
+    }, program.subscribe, program.view, program.setState, program.onError, program.syncDispatch);
 }
 
 export function ProgramModule_withErrorHandler(onError, program) {
@@ -115,7 +108,6 @@ export function ProgramModule_map(mapInit, mapUpdate, mapView, mapSetState, mapS
 export function ProgramModule_runWith(arg, program) {
     const patternInput = program.init(arg);
     const model = patternInput[0];
-    const cmd = patternInput[1];
     const rb = RingBuffer$1_$ctor_Z524259A4(10);
     let reentered = false;
     let state = model;
@@ -131,11 +123,10 @@ export function ProgramModule_runWith(arg, program) {
                 try {
                     const patternInput_1 = program.update(msg_1, state);
                     const model$0027 = patternInput_1[0];
-                    const cmd$0027 = patternInput_1[1];
                     program.setState(model$0027, syncDispatch);
                     Cmd_exec((ex) => {
                         program.onError([toText(printf("Error in command while handling: %A"))(msg_1), ex]);
-                    }, syncDispatch, cmd$0027);
+                    }, syncDispatch, patternInput_1[1]);
                     state = model$0027;
                 }
                 catch (ex_1) {
@@ -148,17 +139,17 @@ export function ProgramModule_runWith(arg, program) {
     };
     const syncDispatch = partialApply(1, program.syncDispatch, [dispatch]);
     program.setState(model, syncDispatch);
-    let sub;
-    try {
-        sub = program.subscribe(model);
-    }
-    catch (ex_2) {
-        program.onError(["Unable to subscribe:", ex_2]);
-        sub = Cmd_none();
-    }
     Cmd_exec((ex_3) => {
         program.onError(["Error intitializing:", ex_3]);
-    }, syncDispatch, Cmd_batch(ofArray([sub, cmd])));
+    }, syncDispatch, Cmd_batch(ofArray([(() => {
+        try {
+            return program.subscribe(model);
+        }
+        catch (ex_2) {
+            program.onError(["Unable to subscribe:", ex_2]);
+            return Cmd_none();
+        }
+    })(), patternInput[1]])));
 }
 
 export function ProgramModule_run(program) {

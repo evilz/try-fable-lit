@@ -1,5 +1,5 @@
 import { Record, FSharpRef } from "./fable_modules/fable-library.3.4.0/Types.js";
-import { record_type, bool_type, string_type, unit_type, MethodInfo, class_type } from "./fable_modules/fable-library.3.4.0/Reflection.js";
+import { record_type, bool_type, string_type, class_type } from "./fable_modules/fable-library.3.4.0/Reflection.js";
 import { Prop_Of_6B8EFA6B, LitElementAttribute } from "./fable_modules/Fable.Lit.1.3.0/LitElement.fs.js";
 import { Lit_mapUnique, Browser_Types_EventTarget__EventTarget_get_Value, LitHelpers_css, LitHelpers_html } from "./fable_modules/Fable.Lit.1.3.0/Lit.fs.js";
 import { fmt } from "./fable_modules/fable-library.3.4.0/String.js";
@@ -60,8 +60,7 @@ export const MousePos = (new LitElementAttribute("mouse-pos")).Decorate(function
         return Promise.resolve(undefined);
     });
     const props = patternInput[1];
-    const host = patternInput[0];
-    MouseController__SetHost_Z5E8026B((props.mouse).controller, host);
+    MouseController__SetHost_Z5E8026B((props.mouse).controller, patternInput[0]);
     return LitHelpers_html(fmt`
     <h3>The mouse is at:</h3>
     <pre>
@@ -69,7 +68,7 @@ export const MousePos = (new LitElementAttribute("mouse-pos")).Decorate(function
     y: ${MouseController__get_Pos((props.mouse).controller).y}
     </pre>
     `);
-}, new MethodInfo("MousePos", [["arg0", unit_type]], class_type("Lit.TemplateResult")));
+});
 
 export class ToDoItem extends Record {
     constructor(Text$, Completed) {
@@ -104,18 +103,20 @@ export const ToDoList = (new LitElementAttribute("todo-list")).Decorate(function
     });
     const props = patternInput[1];
     const host = patternInput[0];
-    const input = () => host.renderRoot.querySelector("#newitem");
     const addToDo = (event) => {
-        const input_1 = input();
+        const input_1 = host.renderRoot.querySelector("#newitem");
         props.listItems = cons(new ToDoItem(Browser_Types_EventTarget__EventTarget_get_Value(input_1), false), props.listItems);
         input_1.value = "";
         host.requestUpdate();
     };
-    const toggleCompleted = (item) => {
-        item.Completed = (!item.Completed);
-        host.requestUpdate();
-    };
-    const getItemTemplate = (item_1) => LitHelpers_html(fmt`<li ${animate({
+    const items = (props.hideCompleted) ? filter((item_2) => (!item_2.Completed), props.listItems) : (props.listItems);
+    const caughtUpMessage = LitHelpers_html(fmt`
+    <p>
+    You're all caught up!
+    </p>
+    `);
+    const todos = LitHelpers_html(fmt`<ul >
+    ${Lit_mapUnique((item_3) => item_3.Text, (item_1) => LitHelpers_html(fmt`<li ${animate({
         in: singleton((obj) => {
             flyBelow(obj);
         }),
@@ -125,19 +126,10 @@ export const ToDoList = (new LitElementAttribute("todo-list")).Decorate(function
         stabilizeOut: true,
     })} class=${(item_1.Completed ? "completed" : "")}
     @click=${((_arg1) => {
-        toggleCompleted(item_1);
-    })}>${item_1.Text}</li>`);
-    const setHideCompleted = (e) => {
-        props.hideCompleted = e.target.checked;
-    };
-    const items = (props.hideCompleted) ? filter((item_2) => (!item_2.Completed), props.listItems) : (props.listItems);
-    const caughtUpMessage = LitHelpers_html(fmt`
-    <p>
-    You're all caught up!
-    </p>
-    `);
-    const todos = LitHelpers_html(fmt`<ul >
-    ${Lit_mapUnique((item_3) => item_3.Text, getItemTemplate, items)}
+        const item = item_1;
+        item.Completed = (!item.Completed);
+        host.requestUpdate();
+    })}>${item_1.Text}</li>`), items)}
     <!-- TODO: Render list items. -->
     </ul>
     `);
@@ -154,10 +146,12 @@ export const ToDoList = (new LitElementAttribute("todo-list")).Decorate(function
     <br>
     <label>
     <input type="checkbox"
-    @change=${setHideCompleted}
+    @change=${((e) => {
+        props.hideCompleted = e.target.checked;
+    })}
     ?checked=${props.hideCompleted}>
     Hide completed
     </label>
     `);
-}, new MethodInfo("ToDoList", [["arg0", unit_type]], class_type("Lit.TemplateResult")));
+});
 
